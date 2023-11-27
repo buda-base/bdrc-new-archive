@@ -37,9 +37,7 @@ class RepoClientTest {
         try (FcrepoResponse top_level = blarg.accept("application/ld+json").perform()) {
             String respbody = new String(top_level.getBody().readAllBytes());
             _logger.info(respbody);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (FcrepoOperationFailedException e) {
+        } catch (IOException | FcrepoOperationFailedException e) {
             throw new RuntimeException(e);
         }
 
@@ -65,9 +63,7 @@ class RepoClientTest {
         try (FcrepoResponse response = postBuilder.perform()) {
             URI location = response.getLocation();
             _logger.info("Container creation status and location: {}, {}", response.getStatusCode(), location);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (FcrepoOperationFailedException e) {
+        } catch (IOException | FcrepoOperationFailedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -92,9 +88,7 @@ class RepoClientTest {
         DeleteBuilder deleteBuilder = _fcrepoClient.delete(new URI("http://sattva:8080/rest/Volumes"));
         try (FcrepoResponse response = deleteBuilder.perform()) {
             _logger.info("Container deletion status: {}", response.getStatusCode());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (FcrepoOperationFailedException e) {
+        } catch (IOException | FcrepoOperationFailedException e) {
             throw new RuntimeException(e);
         }
     }
