@@ -18,6 +18,17 @@ public class Main {
         // ArchivalGroup  = ArchivalGroupFactory.get(fcRestEndpoint, "Volumes");
         return ArchivalGroupFactory.create(fcRestEndpoint, "Volumes", "Volumes");
     }
+    
+    public static void CreateVolumes(BdrcRepoClient client) {
+        // Add a direct container to the Volumes archival group
+        String volumes1 = client.AddContainer("Volumes", "Volume1");
+        _logger.error(volumes1);
+        String volumes2 = client.AddContainer("Volumes", "Volume2");
+        _logger.error(volumes2);
+        // Add a direct containedr to the Volumes archival group
+        String volumes3 = client.AddContainer("Volumes", "Volume3");
+        _logger.error(volumes3);
+    }
 
 
 
@@ -29,21 +40,16 @@ public class Main {
         // In each container, add three image files.
 
         URI fcRestEndpoint = new URI("http://sattva:8080/rest/");
-        BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint,"application/n-triples");
-
-        // Init Create archival group
-        // ArchivalGroupFactory.create(fcRestEndpoint, "Volumes", "Volumes");
+        // BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint,"application/n-triples");
+        BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint,"text/turtle");
 
         String VolsArchiveGroup = client.GetResource("Volumes");
-        _logger.error(VolsArchiveGroup);
-        // Add a direct container to the Volumes archival group
-        String volumes = client.AddContainer("Volumes", "Volume1");
-        _logger.error(volumes);
-        // Add a direct container to the Volumes archival group
-        String volumes2 = client.AddContainer("Volumes", "Volume2");
-        _logger.error(volumes2);
-        // Add a direct containedr to the Volumes archival group
-        String volumes3 = client.AddContainer("Volumes", "Volume3");
-        _logger.error(volumes3);
+        _logger.info(VolsArchiveGroup);
+        for (int i = 1 ; i <= 3; i++) {
+            String volumei = client.GetResource(String.format("Volumes/Volume%d", i ));
+            _logger.info(volumei);
+        }
+
+        
     }
 }

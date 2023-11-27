@@ -25,14 +25,13 @@ class RepoClientTest {
 
         // This gnarl from stackoverflow. Slf4j doesn't seem to have a set level, but the underlying
         // log4j does
-
-        _logger.error("diagnose {}",_logger);
+        _logger.info("Lets go");
     }
 
 
     @Test
     public void TestGet() throws URISyntaxException, RuntimeException {
-        GetBuilder blarg = _fcrepoClient.get(new URI("http://sattva:8080/rest"));
+        GetBuilder blarg = _fcrepoClient.get(new URI("http://sattva:8080/rest/Volumes"));
 
         // Get json
         try (FcrepoResponse top_level = blarg.accept("application/ld+json").perform()) {
@@ -48,9 +47,7 @@ class RepoClientTest {
         try (FcrepoResponse top_level = blarg.accept("text/turtle").perform()) {
             String respbody = new String(top_level.getBody().readAllBytes());
             _logger.info(respbody);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (FcrepoOperationFailedException e) {
+        } catch (IOException | FcrepoOperationFailedException e) {
             throw new RuntimeException(e);
         }
     }
