@@ -21,7 +21,9 @@ public class ArchivalGroupFactory {
         FcrepoClient fc = new FcrepoClient.FcrepoClientBuilder().build();
 
         // Post to the endpoint  the link header defines it as an ArchivalGroup
-        PostBuilder postBuilder = fc.post(endpoint.resolve("rest"));
+        // BUG1: client already passes in /rest/
+        // PostBuilder postBuilder = fc.post(endpoint.resolve("rest"));
+        PostBuilder postBuilder = fc.post(endpoint);
         postBuilder.addHeader("Slug", name);
         postBuilder.addHeader("Link", "<http://fedora.info/definitions/v4/repository#ArchivalGroup>;rel=\"type\"");
 
