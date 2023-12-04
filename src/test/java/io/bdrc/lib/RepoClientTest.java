@@ -23,9 +23,6 @@ class RepoClientTest {
         FcrepoClient.FcrepoClientBuilder fcb = new FcrepoClient.FcrepoClientBuilder();
         _fcrepoClient = fcb.build();
 
-        // This gnarl from stackoverflow. Slf4j doesn't seem to have a set level, but the underlying
-        // log4j does
-        _logger.info("Lets go");
     }
 
 

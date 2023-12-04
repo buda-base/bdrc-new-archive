@@ -1,6 +1,9 @@
 package io.bdrc.lib;
 
-import org.fcrepo.client.*;
+import org.fcrepo.client.FcrepoClient;
+import org.fcrepo.client.FcrepoOperationFailedException;
+import org.fcrepo.client.FcrepoResponse;
+import org.fcrepo.client.GetBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,31 +11,30 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Stream;
+
 
 // Facade for FcrepoClient, uses the builder.
 public class BdrcRepoClient {
 
-private final static String DirectContainerTtl =
-        "@prefix ldp: <http://www.w3.org/ns/ldp#> .\n" +
-                "@prefix pcdm: <http://pcdm.org/models#> .\n" +
-                "@prefix dc <http://purl.org/dc/elements/1.1/>\n" +
-            "<> a ldp:DirectContainer, pcdm:Object;\n" +
-            "   ldp:membershipResource <>;\n" +
-            "   ldp:hasMemberRelation pcdm:hasMember;\n" +
-            "   ldp:isMemberOfRelation pcdm:isMemberOf;\n" +
-            "   ldp:insertedContentRelation pcdm:hasFile .";
+    private final static String DirectContainerTtl =
+            """
+                    @prefix ldp: <http://www.w3.org/ns/ldp#> .
+                    @prefix pcdm: <http://pcdm.org/models#> .
+                    @prefix dc <http://purl.org/dc/elements/1.1/>
+                    <> a ldp:DirectContainer, pcdm:Object;
+                       ldp:membershipResource <>;
+                       ldp:hasMemberRelation pcdm:hasMember;
+                       ldp:isMemberOfRelation pcdm:isMemberOf;
+                       ldp:insertedContentRelation pcdm:hasFile .""";
 
     private final FcrepoClient _fcrepoClient;
 
-    private Logger _logger = LoggerFactory.getLogger(BdrcRepoClient.class);
+    private final Logger _logger = LoggerFactory.getLogger(BdrcRepoClient.class);
 
     private final BdrcRepoMediaValidator _mediaValidator;
 
     // what do we want from the server?
-    private String _acceptMedia = "application/ld+json";
+    private String _acceptMedia = BdrcRepoMediaValidator.DefaultMediaType();
 
     public String getAcceptMedia() {
         return _acceptMedia;
@@ -44,6 +46,21 @@ private final static String DirectContainerTtl =
         } else {
             throw new IllegalArgumentException("Invalid media type: " + acceptMedia);
         }
+    }
+
+    private String _sendMedia = BdrcRepoMediaValidator.DefaultMediaType();
+
+    public String getSendMedia() {
+        return _sendMedia;
+    }
+
+    public void setSendMedia(final String sendMedia) {
+        if (_mediaValidator.validate(sendMedia)) {
+            _sendMedia = sendMedia;
+        } else {
+            throw new IllegalArgumentException("Invalid media type: " + sendMedia);
+        }
+
     }
 
     private URI _endpoint;
@@ -65,28 +82,28 @@ private final static String DirectContainerTtl =
         setEndpoint(endpoint);
     }
 
+    /**
+     * @param endpoint The URI of the Fedora Commons repository (site + port + /rest)
+     */
     public BdrcRepoClient(URI endpoint) {
         _mediaValidator = new BdrcRepoMediaValidator();
+        setAcceptMedia(BdrcRepoMediaValidator.DefaultMediaType());
+
         _fcrepoClient = new FcrepoClient.FcrepoClientBuilder().build();
         setEndpoint(endpoint);
     }
 
-    // Overload to select media on a get-by-get basis
-    public BdrcRepoClient(URI endpoint, List<String> acceptMedias) {
-        _mediaValidator = new BdrcRepoMediaValidator(acceptMedias);
-        _fcrepoClient = new FcrepoClient.FcrepoClientBuilder().build();
-        setEndpoint(endpoint);
-    }
     //</editor-fold>
 
     public String GetResource(String resourcePath) throws RuntimeException {
 
-        String respbody ;
+        String respbody;
         GetBuilder builder = _fcrepoClient.get(_endpoint.resolve(resourcePath));
         try (FcrepoResponse top_level = builder.accept(_acceptMedia).perform()) {
             if (top_level.getStatusCode() != 200) {
                 throw new RuntimeException("GetResource failed: " + top_level.getStatusCode());
             }
+
             respbody = new String(top_level.getBody().readAllBytes());
             _logger.info(respbody);
         } catch (IOException | FcrepoOperationFailedException e) {
@@ -94,20 +111,51 @@ private final static String DirectContainerTtl =
         }
         return respbody;
     }
-    public  String AddContainer(String parent, String ContainerName) throws RuntimeException {
+
+
+    /**
+     * @param parent parent container
+     * @param container  container type
+     * @param title    Dublin Core title - recommend to not use in FcRepo environment
+     * @param description - free text description of object
+     * @return  URI of newly created container
+     * @throws RuntimeException on any exception
+     */
+    public String AddContainer(String parent, LdpContainer container, String title,
+                               String description) throws RuntimeException
+    {
 
         // Set the content type for the direct container
         String contentType = "text/turtle";
 
-        URI containerUri = getEndpoint().resolve(parent +"/" );
-        String titleTTL =
-                String.format("@prefix dc: <http://purl.org/dc/elements/1.1/> <> dc:title \"%s\" .", ContainerName);
+        // Create the container
+        URI containerUri = getEndpoint();
+        if (parent != null ) {
+            containerUri = getEndpoint().resolve(parent + "/");
+        }
 
-        InputStream containerBodyStream =  getInputStream(titleTTL);
+        // Add dublin core title and description to the container
+        // Callers should not, in general, use dc:title
+        // See https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#section-3
+        StringBuilder dcTTL = new StringBuilder();
+        if (title != null) {
+            dcTTL.append(String.format("@prefix dc: <http://purl.org/dc/elements/1.1/> <> dc:title \"%s\" .\n",
+                    title));
+        }
+        if (description != null) {
+            dcTTL.append(String.format("@prefix dc: <http://purl.org/dc/elements/1.1/> <> dc:description \"%s\" .\n",
+                    description));
+        }
+        if ((description == null) && (title == null)) {
+            dcTTL.append("a <> .\n");
+        }
 
-        String respbody ;
+        InputStream containerBodyStream = getInputStream(dcTTL.toString());
 
-        try (FcrepoResponse top_level =_fcrepoClient
+        String respbody;
+
+            _logger.info(container.toString()+"; rel=\"type\"");
+        try (FcrepoResponse top_level = _fcrepoClient
                 .post(containerUri)
 
                 // UIse the header to define the content type, not the ttl - the sample
@@ -116,14 +164,17 @@ private final static String DirectContainerTtl =
 
                 // Take 1aProblem with a slug is that fcrepo will create a new resource if it has the Slug
                 // as an existing one.
-                .addHeader("Slug", ContainerName)
+                // jimk: Don't add "slug" header, let fcrepo name its resource
+                // .addHeader("Slug", ContainerName)
 
                 // Take 1 - add type as header
-                .addHeader("Link", "<http://www.w3.org/ns/ldp#DirectContainer>; rel=\"type\"")
+                // .addHeader("Link", "<http://www.w3.org/ns/ldp#DirectContainer>; rel=\"type\"")
+                // Take 2 - use the passed in container type
+                .addHeader("Link", container +"; rel=\"type\"")
                 .perform()) {
             if (top_level.getStatusCode() != 201) {
-              throw new RuntimeException(String.format("Add Container  %s/%s failed: %d",containerUri,ContainerName,
-                      top_level.getStatusCode()));
+                throw new RuntimeException(String.format("Add Container  %s/%s failed: %d", containerUri, (title == null) ? "" : title,
+                        top_level.getStatusCode()));
             }
             respbody = new String(top_level.getBody().readAllBytes());
             _logger.info(respbody);
@@ -134,11 +185,33 @@ private final static String DirectContainerTtl =
 
     }
 
+
     private static InputStream getInputStream(String content) {
 
         // +1 OpenAI
-        InputStream  stream = new ByteArrayInputStream(content.getBytes()) ;
-        return stream;
+        return new ByteArrayInputStream(content.getBytes());
     }
 
+    public String AddBinary(final String parentUrl, final java.nio.file.Path input_file,
+                            final String file_content_type,
+                            final String md5sum) {
+        String inputFileName = input_file.getFileName().toString();
+        URI containerUri = getEndpoint().resolve(parentUrl + "/" + inputFileName);
+        String respbody;
+        try (FcrepoResponse top_level = _fcrepoClient
+                .post(containerUri)
+                .body(input_file.toFile(), file_content_type)
+                .addHeader("Digest", "md5=" + md5sum)
+                .perform()) {
+            if (top_level.getStatusCode() != 201) {
+                throw new RuntimeException(String.format("Add Binary  %s/%s failed: %d", containerUri, inputFileName,
+                        top_level.getStatusCode()));
+            }
+            respbody = new String(top_level.getBody().readAllBytes());
+            _logger.info(respbody);
+        } catch (IOException | FcrepoOperationFailedException e) {
+            throw new RuntimeException(e);
+        }
+        return respbody;
+    }
 }
