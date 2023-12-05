@@ -196,9 +196,13 @@ public class BdrcRepoClient {
                             final String file_content_type,
                             final String md5sum) {
         String inputFileName = input_file.getFileName().toString();
-        URI containerUri = getEndpoint().resolve(parentUrl + "/" + inputFileName);
+        // Maybe this was the error:
+        // URI containerUri = getEndpoint().resolve(parentUrl + "/" + inputFileName);
+        URI containerUri = getEndpoint().resolve(parentUrl);
+        _logger.info("Adding {} to {}", inputFileName, containerUri);
         String respbody;
-        try (FcrepoResponse top_level = _fcrepoClient
+        FcrepoClient _fcr = new FcrepoClient.FcrepoClientBuilder().build();
+        try (FcrepoResponse top_level = _fcr
                 .post(containerUri)
                 .body(input_file.toFile(), file_content_type)
                 .filename(inputFileName)
