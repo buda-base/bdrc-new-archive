@@ -201,6 +201,7 @@ public class BdrcRepoClient {
         try (FcrepoResponse top_level = _fcrepoClient
                 .post(containerUri)
                 .body(input_file.toFile(), file_content_type)
+                .filename(inputFileName)
                 .addHeader("Digest", "md5=" + md5sum)
                 .perform()) {
             if (top_level.getStatusCode() != 201) {
