@@ -108,7 +108,7 @@ public class Main {
 //        }
 
         // This is the URL of an anonymous container
-        String imagesContainer = "http://sattva:8080/rest/eadc1312-b07f-4d8f-99c1-5ea909e917ab";
+        String imagesContainer = "http://sattva:8080/rest/76369565-4478-40a6-9e64-d236590a27b7";
         _logger.debug("Using existing {} ", imagesContainer);
 
         // Add an unnamed container to the Volumes archival group

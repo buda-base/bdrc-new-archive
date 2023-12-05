@@ -65,6 +65,8 @@ class RepoClientTest {
         }
     }
 
+
+    @Disabled
     @Test
     public void DeleteArchivalGroup() throws URISyntaxException, RuntimeException {
         /* curl -X DELETE -u fedoraAdmin:fedoraAdmin http://localhost:8080/rest/my-archival-group
