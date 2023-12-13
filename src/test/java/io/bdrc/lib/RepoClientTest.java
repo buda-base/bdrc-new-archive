@@ -47,7 +47,7 @@ class RepoClientTest {
         }
     }
 
-    @Disabled
+
     @Test
     public void TestAddArchivalGroup() throws URISyntaxException , RuntimeException{
         // Blending the RESTFul HTTP API @ https://wiki.lyrasis.org/display/FEDORA6x/RESTful+HTTP+API+-+Containers#RESTfulHTTPAPIContainers-BluePOSTCreatenewresourceswithinaLDPcontainer
@@ -66,7 +66,7 @@ class RepoClientTest {
     }
 
 
-    @Disabled
+
     @Test
     public void DeleteArchivalGroup() throws URISyntaxException, RuntimeException {
         /* curl -X DELETE -u fedoraAdmin:fedoraAdmin http://localhost:8080/rest/my-archival-group

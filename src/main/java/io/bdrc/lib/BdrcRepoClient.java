@@ -29,7 +29,7 @@ public class BdrcRepoClient {
 
     private final FcrepoClient _fcrepoClient;
 
-    private final Logger _logger = LoggerFactory.getLogger(BdrcRepoClient.class);
+    private final Logger _logger = LoggerFactory.getLogger("client");
 
     private final BdrcRepoMediaValidator _mediaValidator;
 
@@ -76,9 +76,15 @@ public class BdrcRepoClient {
 
     //<editor-fold desc="Constructors">
     public BdrcRepoClient(URI endpoint, String acceptMedia) {
+
+
+        _logger.debug("BdrcRepoClient constructor {}", endpoint);
         _mediaValidator = new BdrcRepoMediaValidator();
-        _fcrepoClient = new FcrepoClient.FcrepoClientBuilder().build();
         setAcceptMedia(acceptMedia);
+
+        _fcrepoClient = new FcrepoClient.FcrepoClientBuilder()
+                .credentials("fedoraAdmin", "fedoraAdmin")
+                .build();
         setEndpoint(endpoint);
     }
 
@@ -86,11 +92,8 @@ public class BdrcRepoClient {
      * @param endpoint The URI of the Fedora Commons repository (site + port + /rest)
      */
     public BdrcRepoClient(URI endpoint) {
-        _mediaValidator = new BdrcRepoMediaValidator();
-        setAcceptMedia(BdrcRepoMediaValidator.DefaultMediaType());
+        this(endpoint, BdrcRepoMediaValidator.DefaultMediaType());
 
-        _fcrepoClient = new FcrepoClient.FcrepoClientBuilder().build();
-        setEndpoint(endpoint);
     }
 
     //</editor-fold>

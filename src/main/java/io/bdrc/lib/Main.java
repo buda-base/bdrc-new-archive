@@ -18,7 +18,7 @@ public class Main {
     public Main() {
     }
 
-    private static final Logger _logger = LoggerFactory.getLogger(BdrcRepoClient.class);
+    private static final Logger _logger = LoggerFactory.getLogger("client");
 
     public static ArchivalGroup AddArchiveGroup(URI fcRestEndpoint) {
         // Pause this for a while, see ArchivalGroupFactory.java for sample output
@@ -96,7 +96,7 @@ public class Main {
         // Add three containers to the "Volumes" repository
         // In each container, add three image files.
 
-        URI fcRestEndpoint = new URI("http://sattva:8080/rest/");
+        URI fcRestEndpoint = new URI("http://localhost:8080/fcrepo/rest/");
         // BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint,"application/n-triples");
         BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint, "text/turtle");
 
@@ -108,18 +108,20 @@ public class Main {
 //        }
 
         // This is the URL of an anonymous container
-        String imagesContainer = "http://sattva:8080/rest/76369565-4478-40a6-9e64-d236590a27b7";
-        _logger.debug("Using existing {} ", imagesContainer);
+	//  String imagesContainer = "http://sattva:8080/rest/76369565-4478-40a6-9e64-d236590a27b7";
+        // _logger.debug("Using existing {} ", imagesContainer);
 
         // Add an unnamed container to the Volumes archival group
         // client.AddContainer("Volumes", LdpContainer.DirectContainer,null,"W12345-I54321");
 
         // Add an unnamed container to the basic container:
-        // String new_container = client.AddContainer(null, LdpContainer.BasicContainer, null, "W12346-I54322");
+        String new_container = client.AddContainer(null, LdpContainer.DirectContainer, "urn:bdrc:arc:bdr:W1345:v1" +
+                ":W12345-I54321", null);
         // _logger.debug("Created {} ", new_container);
 
+        _logger.debug("Adding images to {} ", new_container);
         Path source_dir = Paths.get("/Users/jimk/dev/tmp/Projects/fcrepo-sandbox/sample-images");
-        AddImages(imagesContainer, client, source_dir);
+        AddImages(new_container, client, source_dir);
 
 
     }
