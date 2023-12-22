@@ -16,16 +16,17 @@ import java.net.URI;
 // Facade for FcrepoClient, uses the builder.
 public class BdrcRepoClient {
 
-    private final static String DirectContainerTtl =
-            """
-                    @prefix ldp: <http://www.w3.org/ns/ldp#> .
-                    @prefix pcdm: <http://pcdm.org/models#> .
-                    @prefix dc <http://purl.org/dc/elements/1.1/>
-                    <> a ldp:DirectContainer, pcdm:Object;
-                       ldp:membershipResource <>;
-                       ldp:hasMemberRelation pcdm:hasMember;
-                       ldp:isMemberOfRelation pcdm:isMemberOf;
-                       ldp:insertedContentRelation pcdm:hasFile .""";
+    // Java 11 doesn't like support this structure
+    //    private final static String DirectContainerTtl =
+//            """
+//                    "@prefix ldp: <http://www.w3.org/ns/ldp#> .
+//                    @prefix pcdm: <http://pcdm.org/models#> .
+//                    @prefix dc <http://purl.org/dc/elements/1.1/>
+//                    <> a ldp:DirectContainer, pcdm:Object;
+//                       ldp:membershipResource <>;
+//                       ldp:hasMemberRelation pcdm:hasMember;
+//                       ldp:isMemberOfRelation pcdm:isMemberOf;
+//                       ldp:insertedContentRelation pcdm:hasFile .""";
 
     private final FcrepoClient _fcrepoClient;
 
@@ -204,8 +205,8 @@ public class BdrcRepoClient {
         URI containerUri = getEndpoint().resolve(parentUrl);
         _logger.info("Adding {} to {}", inputFileName, containerUri);
         String respbody;
-        FcrepoClient _fcr = new FcrepoClient.FcrepoClientBuilder().build();
-        try (FcrepoResponse top_level = _fcr
+        // FcrepoClient _fcr = new FcrepoClient.FcrepoClientBuilder().build();
+        try (FcrepoResponse top_level = _fcrepoClient
                 .post(containerUri)
                 .body(input_file.toFile(), file_content_type)
                 .filename(inputFileName)
