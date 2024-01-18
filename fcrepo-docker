@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# See https://github.com/fcrepo-exts/fcrepo-docker
+# for how to extend this basic step with features - users, etc
+# Run fcrepo with persisent storage on ~jimk/fcrepo
+#
+# This doesn't persist
+# FCREPO_HOST_HOME=~/fcrepo
+# docker run -p8080:8080 -v"${FCREPO_HOST_HOME}":/var/lib/fcrepo --name=fcrepo fcrepo/fcrepo
+
+
+export FEDORA_HOST=~/fedora-docker
+mkdir -p $FEDORA_HOST
+echo "fcrepo.home=/fedora_home" > $FEDORA_HOST/fcrepo.properties
+
+export FEDORA_HOST_HOME=$FEDORA_HOST/fedora_home
+mkdir -p $FEDORA_HOST_HOME
+
+docker run -p8080:8080 -v${FEDORA_HOST_HOME}:/fedora_home -v${FEDORA_HOST}/fcrepo.properties:/fcrepo.properties -e CATALINA_OPTS="-Dfcrepo.config.file=/fcrepo.properties" --name=fcrepo fcrepo/fcrepo
