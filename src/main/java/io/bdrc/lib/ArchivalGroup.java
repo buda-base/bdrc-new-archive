@@ -31,4 +31,8 @@ public class ArchivalGroup {
         public URI getLocation() {
             return _location;
         }
+
+        public String toString() {
+            return "ArchivalGroup: " + _name + " " + _description + " " + _location;
+        }
 }

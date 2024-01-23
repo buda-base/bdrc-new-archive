@@ -30,7 +30,7 @@ public class Main {
         // Add a direct container to the Volumes archival group
 
         for (String volumeName : volumeNames) {
-            String volume = client.AddContainer(archivalGroup.getName(), LdpContainer.DirectContainer, volumeName,
+            String volume = client.AddContainerSlug(archivalGroup.getName(), LdpContainer.DirectContainer, volumeName,
                     "Programmatically created");
             _logger.debug(volume);
         }
@@ -96,23 +96,30 @@ public class Main {
         // In each container, add three image files.
 
         URI fcRestEndpoint = new URI("http://localhost:8088/fcrepo/rest/");
-        // BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint,"application/n-triples");
-        BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint, "text/turtle");
+        BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint,"application/n-triples");
+        // BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint, "text/turtle");
 
         // Scenario 2: Add an Archival group, named "volumes"
         // Add three containers
         // Add three images to each container.
         // In between, monitor the repository with the Fedora UI
-        _logger.info("Howdy");
-        _logger.error("Howdy");
-        _logger.debug("Howdy");
-        ArchivalGroup volumesAG = AddArchiveGroup(fcRestEndpoint, "Volumes","Archival Group of Image Volumes. Code " +
-                "created");
-        _logger.debug("Created {} ", volumesAG);
-        CreateVolumes(client, volumesAG, new String[] {"Volume1", "Volume2", "Volume3"});
+
+//        String whatapp = client.GetResource("Volumes");
+//        _logger.debug("whatapp {}", whatapp);
+        String whatapp2 = client.GetResource("");
+        _logger.debug("whatapp2 {}", whatapp2);
+//        ArchivalGroup volumesAG = AddArchiveGroup(fcRestEndpoint, "Volumes",
+//                "Archival Group of Image Volumes. Code created");
+//        _logger.debug("Created {} ", volumesAG);
+
+//        ArchivalGroup ag = ArchivalGroupFactory.get(client,"Volumes");
+         CreateVolumes(client, new ArchivalGroup("Volumes",null,null), new String[] {"Volume1", "Volume2",
+         "Volume3"});
 
 
 
+        // Scenario 2: Get the volumes by name - this requires  a search on dc.title, or some other way
+        // to add a resource by name
 //        String VolsArchiveGroup = client.GetResource("Volumes");
 //        _logger.info(VolsArchiveGroup);
 //        for (int i = 1 ; i <= 3; i++) {

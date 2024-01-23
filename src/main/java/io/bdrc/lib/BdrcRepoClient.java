@@ -109,7 +109,7 @@ public class BdrcRepoClient {
             }
 
             respbody = new String(top_level.getBody().readAllBytes());
-            _logger.info(respbody);
+            // _logger.info(respbody);
         } catch (IOException | FcrepoOperationFailedException e) {
             throw new RuntimeException(e);
         }
@@ -125,7 +125,7 @@ public class BdrcRepoClient {
      * @return  URI of newly created container
      * @throws RuntimeException on any exception
      */
-    public String AddContainer(String parent, LdpContainer container, String title,
+    public String AddContainerDCTitleDesc(String parent, LdpContainer container, String title,
                                String description) throws RuntimeException
     {
 
@@ -158,7 +158,7 @@ public class BdrcRepoClient {
 
         String respbody;
 
-            _logger.info(container.toString()+"; rel=\"type\"");
+        _logger.info(container.toString()+"; rel=\"type\"");
         try (FcrepoResponse top_level = _fcrepoClient
                 .post(containerUri)
 
@@ -189,7 +189,69 @@ public class BdrcRepoClient {
 
     }
 
+    public String AddContainerSlug(String parent, LdpContainer container, String title,
+                               String description) throws RuntimeException
+    {
 
+        // Set the content type for the direct container
+        String contentType = "text/turtle";
+
+        // Create the container
+        URI containerUri = getEndpoint();
+        if (parent != null ) {
+            containerUri = getEndpoint().resolve(parent + "/");
+        }
+
+        // Add dublin core title and description to the container
+        // Callers should not, in general, use dc:title
+        // See https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#section-3
+        StringBuilder dcTTL = new StringBuilder();
+        if (title != null) {
+            dcTTL.append(String.format("@prefix dc: <http://purl.org/dc/elements/1.1/> <> dc:title \"%s\" .\n",
+                    title));
+        }
+        if (description != null) {
+            dcTTL.append(String.format("@prefix dc: <http://purl.org/dc/elements/1.1/> <> dc:description \"%s\" .\n",
+                    description));
+        }
+        if ((description == null) && (title == null)) {
+            dcTTL.append("a <> .\n");
+        }
+
+        InputStream containerBodyStream = getInputStream(dcTTL.toString());
+
+        String respbody;
+
+        _logger.info(container.toString()+"; rel=\"type\"");
+        try (FcrepoResponse top_level = _fcrepoClient
+                .post(containerUri)
+
+                // UIse the header to define the content type, not the ttl - the sample
+                // from the FcrepoClient documentation is wrong - gives a 400
+                .body(containerBodyStream, contentType)
+
+                // Take 1aProblem with a slug is that fcrepo will create a new resource if it has the Slug
+                // as an existing one.
+                // jimk: Don't add "slug" header, let fcrepo name its resource
+                .addHeader("Slug", title)
+
+                // Take 1 - add type as header
+                // .addHeader("Link", "<http://www.w3.org/ns/ldp#DirectContainer>; rel=\"type\"")
+                // Take 2 - use the passed in container type
+                .addHeader("Link", container +"; rel=\"type\"")
+                .perform()) {
+            if (top_level.getStatusCode() != 201) {
+                throw new RuntimeException(String.format("Add Container  %s/%s failed: %d", containerUri, (title == null) ? "" : title,
+                        top_level.getStatusCode()));
+            }
+            respbody = new String(top_level.getBody().readAllBytes());
+            _logger.info(respbody);
+        } catch (IOException | FcrepoOperationFailedException e) {
+            throw new RuntimeException(e);
+        }
+        return respbody;
+
+    }
     private static InputStream getInputStream(String content) {
 
         // +1 OpenAI

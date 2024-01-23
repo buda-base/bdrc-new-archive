@@ -18,20 +18,25 @@ public class ArchivalGroupFactory {
     public static ArchivalGroup create(URI endpoint, String name, String description) {
 
         // Build a client
-        FcrepoClient fc = new FcrepoClient.FcrepoClientBuilder().build();
+        // TODO: Why am I reproducing this code from BdrcRepoClient.java?
+        FcrepoClient fc = new FcrepoClient.FcrepoClientBuilder().credentials("fedoraAdmin",
+                "fedoraAdmin").throwExceptionOnFailure().build();
 
         // Post to the endpoint  the link header defines it as an ArchivalGroup
-        // BUG1: client already passes in /rest/
-        // PostBuilder postBuilder = fc.post(endpoint.resolve("rest"));
+
         PostBuilder postBuilder = fc.post(endpoint);
         postBuilder.addHeader("Slug", name);
         postBuilder.addHeader("Link", "<http://fedora.info/definitions/v4/repository#ArchivalGroup>;rel=\"type\"");
+
+        // TODO: Add dc.title and dc.description nodes to the body
+
 
         URI location;
         try (FcrepoResponse response = postBuilder.perform()) {
             location = response.getLocation();
             _logger.debug("Container creation status and location: {}, {}", response.getStatusCode(), location);
         } catch (IOException | FcrepoOperationFailedException e) {
+            _logger.error(e.getMessage());
             throw new RuntimeException(e);
         }
         return new ArchivalGroup(name, description, location);
@@ -40,33 +45,36 @@ public class ArchivalGroupFactory {
     /**
      * Get a named ArchivalGroup from the endpoint
      *
-     * @param endpoint
-     * @param name
+     * @param client context
+     * @param name  search target
      * @return ArchivalGroup
      */
-    public static ArchivalGroup get(URI endpoint, String name) {
+    public static ArchivalGroup get(BdrcRepoClient client, String name) {
 
         String respbody;
 
         // +3 copilot
-        try (FcrepoClient fcrc = new FcrepoClient.FcrepoClientBuilder().build()) {
-            GetBuilder getter = fcrc.get(endpoint.resolve("rest"));
-            getter.accept("application/ld+json");
+
+
+//        try (FcrepoClient fcrc = new FcrepoClient.FcrepoClientBuilder().build()) {
+//            GetBuilder getter = fcrc.get(endpoint.resolve("rest"));
+//            getter.accept("application/ld+json");
+            String frelm = client.GetResource(name);
+
 
             // Skip Server managed attributes
             // getter.addHeader("Prefer", "return=representation; omit=\"http://fedora" +
             //        ".info/definitions/v4/repository#ServerManaged\"");
-            try (FcrepoResponse top_level = getter.perform()) {
-                 if (top_level.getStatusCode() == 200) {
-                     respbody = new String(top_level.getBody().readAllBytes());
-                     _logger.debug(respbody);
-                 }
-            } catch (IOException | FcrepoOperationFailedException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//            try (FcrepoResponse top_level = getter.perform()) {
+//                 if (top_level.getStatusCode() == 200) {
+//                     respbody = new String(top_level.getBody().readAllBytes());
+//                     _logger.debug(respbody);
+//                 }
+//            } catch (IOException | FcrepoOperationFailedException e) {
+//                throw new RuntimeException(e);
+//            }
+
+
 
         // Since we asked for a json+ld, use it.
         //https://www.baeldung.com/jackson-mapping-dynamic-object
