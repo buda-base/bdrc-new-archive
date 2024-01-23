@@ -20,21 +20,20 @@ public class Main {
 
     private static final Logger _logger = LoggerFactory.getLogger("client");
 
-    public static ArchivalGroup AddArchiveGroup(URI fcRestEndpoint) {
+    public static ArchivalGroup AddArchiveGroup(URI fcRestEndpoint, String agName, String agDescription) {
         // Pause this for a while, see ArchivalGroupFactory.java for sample output
         // ArchivalGroup  = ArchivalGroupFactory.get(fcRestEndpoint, "Volumes");
-        return ArchivalGroupFactory.create(fcRestEndpoint, "Volumes", "Volumes");
+        return ArchivalGroupFactory.create(fcRestEndpoint, agName, agDescription);
     }
 
-    public static void CreateVolumes(BdrcRepoClient client) {
+    public static void CreateVolumes( BdrcRepoClient client, ArchivalGroup archivalGroup, String[] volumeNames) {
         // Add a direct container to the Volumes archival group
-        // String volumes1 = client.AddContainer("Volumes", LdpContainer.DirectContainer,null,"Volume 1");
-//        _logger.error(volumes1);
-//        String volumes2 = client.AddContainer("Volumes", "Volume2");
-//        _logger.error(volumes2);
-//        // Add a direct container to the Volumes archival group
-//        String volumes3 = client.AddContainer("Volumes", "Volume3");
-//        _logger.error(volumes3);
+
+        for (String volumeName : volumeNames) {
+            String volume = client.AddContainer(archivalGroup.getName(), LdpContainer.DirectContainer, volumeName,
+                    "Programmatically created");
+            _logger.debug(volume);
+        }
     }
 
 
@@ -96,9 +95,23 @@ public class Main {
         // Add three containers to the "Volumes" repository
         // In each container, add three image files.
 
-        URI fcRestEndpoint = new URI("http://localhost:8080/fcrepo/rest/");
+        URI fcRestEndpoint = new URI("http://localhost:8088/fcrepo/rest/");
         // BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint,"application/n-triples");
         BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint, "text/turtle");
+
+        // Scenario 2: Add an Archival group, named "volumes"
+        // Add three containers
+        // Add three images to each container.
+        // In between, monitor the repository with the Fedora UI
+        _logger.info("Howdy");
+        _logger.error("Howdy");
+        _logger.debug("Howdy");
+        ArchivalGroup volumesAG = AddArchiveGroup(fcRestEndpoint, "Volumes","Archival Group of Image Volumes. Code " +
+                "created");
+        _logger.debug("Created {} ", volumesAG);
+        CreateVolumes(client, volumesAG, new String[] {"Volume1", "Volume2", "Volume3"});
+
+
 
 //        String VolsArchiveGroup = client.GetResource("Volumes");
 //        _logger.info(VolsArchiveGroup);
@@ -115,13 +128,13 @@ public class Main {
         // client.AddContainer("Volumes", LdpContainer.DirectContainer,null,"W12345-I54321");
 
         // Add an unnamed container to the basic container:
-        String new_container = client.AddContainer(null, LdpContainer.DirectContainer, "urn:bdrc:arc:bdr:W1345:v1" +
-                ":W12345-I54321", null);
+//        String new_container = client.AddContainer(null, LdpContainer.DirectContainer, "urn:bdrc:arc:bdr:W1345:v1" +
+//                ":W12345-I54321", null);
         // _logger.debug("Created {} ", new_container);
 
-        _logger.debug("Adding images to {} ", new_container);
-        Path source_dir = Paths.get("/Users/jimk/dev/tmp/Projects/fcrepo-sandbox/sample-images");
-        AddImages(new_container, client, source_dir);
+//        _logger.debug("Adding images to {} ", new_container);
+//        Path source_dir = Paths.get("/Users/jimk/dev/tmp/Projects/fcrepo-sandbox/sample-images");
+//        AddImages(new_container, client, source_dir);
 
 
     }
