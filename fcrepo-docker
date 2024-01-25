@@ -8,12 +8,23 @@
 # FCREPO_HOST_HOME=~/fcrepo
 # docker run -p8080:8080 -v"${FCREPO_HOST_HOME}":/var/lib/fcrepo --name=fcrepo fcrepo/fcrepo
 
-
+export ME=`basename "$0"`
+export ME_DIR=$(dirname $(readlink -f $0))
 export FEDORA_HOST=~/fedora-docker
-mkdir -p $FEDORA_HOST
-echo "fcrepo.home=/fedora_home" > $FEDORA_HOST/fcrepo.properties
-
 export FEDORA_HOST_HOME=$FEDORA_HOST/fedora_home
+
+#
+# WHEN READY, change to a production properties, with auth and everything
+export FCREPO_SRC_PROPERTIES=${ME_DIR}/fcrepo.dev.properties
+export FCREPO_RUN_PROPERTIES=fcrepo.properties
+mkdir -p $FEDORA_HOST
+
+ls -l $FEDORA_HOST/$FCREPO_RUN_PROPERTIES $FCREPO_SRC_PROPERTIES
+if [[ $FCREPO_SRC_PROPERTIES -nt $FEDORA_HOST/fcrepo.properties ]]; then
+    echo "Copying $FCREPO_SRC_PROPERTIES to $FEDORA_HOST/$FCREPO_RUN_PROPERTIES"
+    cp -vp $FCREPO_SRC_PROPERTIES $FEDORA_HOST/$FCREPO_RUN_PROPERTIES
+fi
+
 mkdir -p $FEDORA_HOST_HOME
 
-docker run -p8088:8080 -v${FEDORA_HOST_HOME}:/fedora_home -v${FEDORA_HOST}/fcrepo.properties:/fcrepo.properties -e CATALINA_OPTS="-Dfcrepo.config.file=/fcrepo.properties" --name=fcrepo fcrepo/fcrepo
+docker run -p8088:8080 -v${FEDORA_HOST_HOME}:/fedora_home -v${FEDORA_HOST}/$FCREPO_RUN_PROPERTIES:/fcrepo.properties -e CATALINA_OPTS="-Dfcrepo.config.file=/fcrepo.properties" --name=fcrepo fcrepo/fcrepo
