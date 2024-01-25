@@ -191,9 +191,9 @@ public class Main {
      * @param client         BdrcRepoclient
      * @param parentResource String representing container
      * @param imageSource    directory containing images
-     * @throws BdrcRepoException
+     * @throws BdrcRepoException  Wrap all exceptions
      */
-    public static <parentResource> void TxnTest(BdrcRepoClient client, String parentResource, String imageSource) throws BdrcRepoException {
+    public static void TxnTest(BdrcRepoClient client, String parentResource, String imageSource) throws BdrcRepoException {
         URI txnLocation = null;
         boolean txnFail = false;
 

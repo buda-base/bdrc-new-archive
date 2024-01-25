@@ -125,7 +125,6 @@ public class ArchivalGroupFactory {
                         "}" +
                         "]";
 
-        //TODO: Figre out how to populate the ArchivalGroup DTO from the JSON-LD
         return new ArchivalGroup("name", "description", URI.create("location"));
 
     }
