@@ -11,14 +11,6 @@ target/
 *.iws
 *.iml
 *.ipr
-**/.idea/codeStyles/Project.xml
-.idea/codeStyles/codeStyleConfig.xml
-.idea/encodings.xml
-.idea/inspectionProfiles/Project_Default.xml
-.idea/jpa-buddy.xml
-.idea/misc.xml
-.idea/vcs.xml
-.idea/workspace.xml
 
 ### Eclipse ###
 .apt_generated
