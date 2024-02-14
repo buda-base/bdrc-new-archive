@@ -1,4 +1,4 @@
-package io.bdrc.lib;
+package io.bdrc.lib.RepoClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class Main {
         return ArchivalGroupFactory.create(fcRestEndpoint, agName, agDescription);
     }
 
-    public static void AddVolumes(BdrcRepoClient client, String resourceParent, String[] volumeNames) {
+    public static void AddVolumes(RepoClient client, String resourceParent, String[] volumeNames) {
         // Add a direct container to the Volumes archival group
 
         for (String volumeName : volumeNames) {
@@ -57,7 +57,7 @@ public class Main {
         return result.toString();
     }
 
-    public static void AddImages(String parentUrl, BdrcRepoClient client, Path source_dir) {
+    public static void AddImages(String parentUrl, RepoClient client, Path source_dir) {
         // Add three binary objects to the parentUrl Fcrepo resource
         // get md5shasum for a file
 
@@ -88,7 +88,7 @@ public class Main {
     }
 
 
-    public static void main(String[] args) throws URISyntaxException, BdrcRepoException {
+    public static void main(String[] args) throws URISyntaxException, RepoException {
 
         // Add an Archival group to the repository
 
@@ -96,7 +96,7 @@ public class Main {
         // In each container, add three image files.
 
         URI fcRestEndpoint = new URI("http://localhost:8088/fcrepo/rest/");
-        BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint, "application/n-triples");
+        RepoClient client = new RepoClient(fcRestEndpoint, "application/n-triples");
         // BdrcRepoClient client = new BdrcRepoClient(fcRestEndpoint, "text/turtle");
 
         // Scenario 2: Add an Archival group, named "volumes"
@@ -191,9 +191,9 @@ public class Main {
      * @param client         BdrcRepoclient
      * @param parentResource String representing container
      * @param imageSource    directory containing images
-     * @throws BdrcRepoException  Wrap all exceptions
+     * @throws RepoException  Wrap all exceptions
      */
-    public static void TxnTest(BdrcRepoClient client, String parentResource, String imageSource) throws BdrcRepoException {
+    public static void TxnTest(RepoClient client, String parentResource, String imageSource) throws RepoException {
         URI txnLocation = null;
         boolean txnFail = false;
 
@@ -203,7 +203,7 @@ public class Main {
             txnLocation = client.txnBegin();
             String pc = client.getEndpoint() + parentResource;
             AddImages(pc, client, Paths.get(imageSource));
-        } catch (BdrcRepoException e) {
+        } catch (RepoException e) {
             txnFail = true;
             _logger.error(e.getLocalizedMessage());
         } finally {

@@ -1,4 +1,4 @@
-package io.bdrc.lib;
+package io.bdrc.lib.RepoClient;
 
 import org.fcrepo.client.*;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class ArchivalGroupFactory {
      * @param name   search target
      * @return ArchivalGroup
      */
-    public static ArchivalGroup get(BdrcRepoClient client, String name) {
+    public static ArchivalGroup get(RepoClient client, String name) {
 
         String respbody;
 

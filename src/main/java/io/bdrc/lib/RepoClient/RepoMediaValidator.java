@@ -1,4 +1,4 @@
-package io.bdrc.lib;
+package io.bdrc.lib.RepoClient;
 
 
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
  * Returns a compile-time default.
  * TODO: Wire the default into a property.
  */
-public class BdrcRepoMediaValidator {
+public class RepoMediaValidator {
 
     // +1 copilot
     private final static List<String> _default_mediaTypes = List.of(
@@ -21,12 +21,12 @@ public class BdrcRepoMediaValidator {
     private final List<String> _mediaTypes;
 
 
-    public BdrcRepoMediaValidator(List<String> mediaTypes) {
+    public RepoMediaValidator(List<String> mediaTypes) {
 
         _mediaTypes = mediaTypes;
     }
 
-    public BdrcRepoMediaValidator() {
+    public RepoMediaValidator() {
 
         _mediaTypes = _default_mediaTypes;
     }

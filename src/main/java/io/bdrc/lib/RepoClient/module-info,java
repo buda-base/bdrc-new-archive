@@ -1,0 +1,4 @@
+module io.bdrc.lib.RepoClient {
+    requires java.base;
+    exports io.bdrc.lib.RepoClient;
+}

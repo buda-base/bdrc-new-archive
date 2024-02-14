@@ -1,4 +1,4 @@
-package org.example;
+package io.bdrc.lib.OcflClient;
 
 import io.ocfl.api.OcflOption;
 import io.ocfl.api.OcflRepository;
@@ -6,7 +6,6 @@ import io.ocfl.api.model.ObjectVersionId;
 import io.ocfl.api.model.OcflObjectVersion;
 import io.ocfl.api.model.VersionInfo;
 import io.ocfl.core.OcflRepositoryBuilder;
-import io.ocfl.core.extension.storage.layout.config.HashedNTupleLayoutConfig;
 import io.ocfl.core.extension.storage.layout.config.NTupleOmitPrefixStorageLayoutConfig;
 
 import java.nio.file.Path;
@@ -17,7 +16,7 @@ import java.nio.file.Paths;
  *
  */
 
-public class repo1_NTupleOmitPrefix
+public class RepoNTupleOmitPrefix
 {
     // Try 1: standard HashNTuple layout
     private static final String OCFL_ROOT = "/Users/jimk/dev/tmp/Projects/OCFL/Hash_ext007";
@@ -27,6 +26,7 @@ public class repo1_NTupleOmitPrefix
     private static final String O_PREFIX=  "bdr:";
     public static void main( String[] args )
     {
+
         var repoDir = Paths.get(OCFL_ROOT,"ocfl-repo"); // This directory contains the OCFL storage root.
         var workDir = Paths.get(OCFL_ROOT,"ocfl-work"); // This directory is used to assemble OCFL versions. It cannot
         // be within the OCFL storage root.

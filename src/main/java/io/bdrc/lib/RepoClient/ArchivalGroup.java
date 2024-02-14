@@ -1,4 +1,4 @@
-package io.bdrc.lib;
+package io.bdrc.lib.RepoClient;
 
 import java.net.URI;
 

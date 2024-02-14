@@ -1,4 +1,4 @@
-package io.bdrc.lib;
+package io.bdrc.lib.RepoClient;
 
 import org.fcrepo.client.*;
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 
 
 // Facade for FcrepoClient, uses the builder.
-public class BdrcRepoClient {
+public class RepoClient {
 
     // Java 11 doesn't like support this structure
     //    private final static String DirectContainerTtl =
@@ -30,10 +30,10 @@ public class BdrcRepoClient {
 
     private final Logger _logger = LoggerFactory.getLogger("client");
 
-    private final BdrcRepoMediaValidator _mediaValidator;
+    private final RepoMediaValidator _mediaValidator;
 
     // what do we want from the server?
-    private String _acceptMedia = BdrcRepoMediaValidator.DefaultMediaType();
+    private String _acceptMedia = RepoMediaValidator.DefaultMediaType();
 
     public String getAcceptMedia() {
         return _acceptMedia;
@@ -47,7 +47,7 @@ public class BdrcRepoClient {
         }
     }
 
-    private String _sendMedia = BdrcRepoMediaValidator.DefaultMediaType();
+    private String _sendMedia = RepoMediaValidator.DefaultMediaType();
 
     public String getSendMedia() {
         return _sendMedia;
@@ -74,11 +74,11 @@ public class BdrcRepoClient {
 
 
     //<editor-fold desc="Constructors">
-    public BdrcRepoClient(URI endpoint, String acceptMedia) {
+    public RepoClient(URI endpoint, String acceptMedia) {
 
 
         _logger.debug("BdrcRepoClient constructor {}", endpoint);
-        _mediaValidator = new BdrcRepoMediaValidator();
+        _mediaValidator = new RepoMediaValidator();
         setAcceptMedia(acceptMedia);
 
         _fcrepoClient = new FcrepoClient.FcrepoClientBuilder()
@@ -90,8 +90,8 @@ public class BdrcRepoClient {
     /**
      * @param endpoint The URI of the Fedora Commons repository (site + port + /rest)
      */
-    public BdrcRepoClient(URI endpoint) {
-        this(endpoint, BdrcRepoMediaValidator.DefaultMediaType());
+    public RepoClient(URI endpoint) {
+        this(endpoint, RepoMediaValidator.DefaultMediaType());
 
     }
 
@@ -280,7 +280,7 @@ public class BdrcRepoClient {
      *         "cf83e1...a3e": [ "empty.txt", "empty2.txt" ]
      *       },
      */
-    public URI AddVersion(final String resourceName, String messageSlug) throws BdrcRepoException  {
+    public URI AddVersion(final String resourceName, String messageSlug) throws RepoException  {
         // https://github.com/fcrepo-exts/fcrepo-java-client
         // https://wiki.lyrasis.org/display/FEDORA4x/Versioning
 
@@ -299,7 +299,7 @@ public class BdrcRepoClient {
                     versionLocation);
         }
         catch (URISyntaxException | FcrepoOperationFailedException e ){
-            throw new BdrcRepoException(e.getMessage());
+            throw new RepoException(e.getMessage());
         }
 
         return versionLocation ;
@@ -312,7 +312,7 @@ public class BdrcRepoClient {
      * https://wiki.lyrasis.org/display/FEDORA4x/Transactions
      */
 
-    public URI txnBegin() throws BdrcRepoException {
+    public URI txnBegin() throws RepoException {
         URI txnLocation;
         try {
             URI _tmp = addChild(_endpoint, "fcr:tx");
@@ -320,7 +320,7 @@ public class BdrcRepoClient {
             txnLocation = response.getLocation();
             _logger.debug("Transaction creation status and location: {}, {}", response.getStatusCode(), txnLocation);
         } catch (Exception e) {
-            throw (BdrcRepoException) (e);
+            throw (RepoException) (e);
         }
         return txnLocation;
     }
@@ -330,7 +330,7 @@ public class BdrcRepoClient {
      *
      * @param txnLocation fcRepo transactions are identified by an URI
      */
-    public void txnRollback(URI txnLocation) throws BdrcRepoException {
+    public void txnRollback(URI txnLocation) throws RepoException {
         txnOp(txnLocation, "fcr:rollback");
     }
 
@@ -339,18 +339,18 @@ public class BdrcRepoClient {
      *
      * @param txnLocation fcRepo transactions are identified by an URI
      */
-    public void txnCommit(URI txnLocation) throws BdrcRepoException {
+    public void txnCommit(URI txnLocation) throws RepoException {
         txnOp(txnLocation, "fcr:commit");
     }
 
-    private void txnOp(URI txnLocation, String op) throws BdrcRepoException {
+    private void txnOp(URI txnLocation, String op) throws RepoException {
         try {
             URI commitURI = addChild(txnLocation, "./" + op);
             FcrepoResponse response = new PostBuilder(commitURI, _fcrepoClient).perform();
             _logger.debug("Transaction commit status: {}", response.getStatusCode());
         }
         catch (FcrepoOperationFailedException | URISyntaxException e ) {
-            throw new BdrcRepoException(e.getMessage());
+            throw new RepoException(e.getMessage());
         }
     }
 

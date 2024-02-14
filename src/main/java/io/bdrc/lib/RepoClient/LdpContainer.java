@@ -1,4 +1,4 @@
-package io.bdrc.lib;
+package io.bdrc.lib.RepoClient;
 
 // create an enum of strings that represeent <http://www.w3.org/ns/ldp# types
 public enum LdpContainer {

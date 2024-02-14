@@ -1,4 +1,4 @@
-package org.example;
+package io.bdrc.lib.OcflClient;
 
 import io.ocfl.api.model.ObjectVersionId;
 import io.ocfl.api.model.OcflObjectVersion;
