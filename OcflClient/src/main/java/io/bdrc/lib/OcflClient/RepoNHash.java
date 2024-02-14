@@ -12,7 +12,7 @@ import java.nio.file.Paths;
  *
  */
 
-public class repo1_hash_n
+public class RepoNHash
 {
     // Try 1: standard HashNTuple layout
     private static final String OCFL_ROOT = "/Users/jimk/dev/tmp/Projects/OCFL/HashNTuple";
