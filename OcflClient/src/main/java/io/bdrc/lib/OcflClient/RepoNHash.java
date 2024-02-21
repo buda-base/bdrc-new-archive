@@ -1,28 +1,32 @@
 package io.bdrc.lib.OcflClient;
 
 import io.ocfl.api.model.ObjectVersionId;
-import io.ocfl.api.model.OcflObjectVersion;
 import io.ocfl.core.OcflRepositoryBuilder;
 import io.ocfl.core.extension.storage.layout.config.HashedNTupleLayoutConfig;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static io.bdrc.lib.OcflClient.Globals.*;
+import static io.bdrc.lib.OcflClient.OcflPrimitives.*;
 
 /**
  * prototype ocfl client
- *
  */
 
-public class RepoNHash
-{
-    // Try 1: standard HashNTuple layout
-    private static final String OCFL_ROOT = "/Users/jimk/dev/tmp/Projects/OCFL/HashNTuple";
+public class RepoNHash {
+    private static final String layoutName = "RepoNHash";
+    private static final String sampleObjectId = "W1PD177852";
 
-    private static final String OCFL_SRC_ROOT = "/Users/jimk/dev/tmp/Projects/OCFL" ;
-    public static void main( String[] args )
+    // Just for thrills. Used BOTH to locate input and output
+    private static final String sampleObjectDiskName = sampleObjectId;
+
+    public static void main(String[] args) throws IOException
     {
-        var repoDir = Paths.get(OCFL_ROOT,"ocfl-repo"); // This directory contains the OCFL storage root.
-        var workDir = Paths.get(OCFL_ROOT,"ocfl-work"); // This directory is used to assemble OCFL versions. It cannot
-        // be within the OCFL storage root.
+        Path ocflHome = getOCFL_ROOT(layoutName);
+        Path repoDir = rebuildPath(getOcflRepo(ocflHome));
+        Path workDir = rebuildPath(getOcflWork(ocflHome));
 
         var repo = new OcflRepositoryBuilder()
                 .defaultLayoutConfig(new HashedNTupleLayoutConfig())
@@ -30,41 +34,18 @@ public class RepoNHash
                 .workDir(workDir)
                 .build();
 
+// jimk 2024-02-21: Use standard actions
+        // No prefix in this object type
 
-//        repo.putObject(ObjectVersionId.head("o1"), Paths.get(OCFL_SRC_ROOT, "object-out-dir"),
-//                new VersionInfo().setMessage(
-//                "initial commit"));
-
-        // This works!
-        // repo.getObject(ObjectVersionId.head("o1"), Paths.get(OCFL_SRC_ROOT, "object-in-dir"));
+        populate_work(repo, sampleObjectId, Paths.get(OCFL_PROJECT_ROOT.toString(), "sample",
+                SampleWorkSource, sampleObjectDiskName));
 
 
-//        repo.updateObject(ObjectVersionId.head("o1"), new VersionInfo().setMessage("update"), updater -> {
-//            updater.addPath(Paths.get(OCFL_SRC_ROOT,"updates","I1KG183680008.tif"), "file2", OcflOption.OVERWRITE)
-//                    .removeFile("file1")
-//                    .addPath(Paths.get(OCFL_SRC_ROOT,"updates","I1KG183680007.tif"), "dir1/file3", OcflOption.OVERWRITE);
-//        });
+        // dump each object into a dir specific to its layout name
+        Path sampleOut = Paths.get(OCFL_PROJECT_ROOT.toString(), "sample", SampleOutput,
+                layoutName, sampleObjectDiskName);
 
-// Contains object details and lazy-load resource handles
-//        OcflObjectVersion objectVersion = repo.getObject(ObjectVersionId.version("o1", "v1"));
-//
-//
-//        System.out.println( objectVersion.toString() );
-
-        //Does this get the head object version?
-        OcflObjectVersion headObjectVersion = repo.getObject(ObjectVersionId.head("o1"));
-        // Get the files
-        repo.getObject(ObjectVersionId.head("o1"), Paths.get(OCFL_SRC_ROOT, "object-in-dir-head"));
-
-        // Get the v2 files
-        repo.getObject(ObjectVersionId.version("o1","v2"), Paths.get(OCFL_SRC_ROOT, "object-in-dir-v2"));
-
-
-//        OcflObjectVersion v2ObjectVersion = repo.getObject(ObjectVersionId.version("o1", "v2"));
-//        System.out.println( v2ObjectVersion.toString() );
-//
-//        Collection< OcflObjectVersionFile> headObjectFiles = v2ObjectVersion.getFiles();
-//        System.out.println( headObjectFiles.toString() );
+        downloadContent(repo, ObjectVersionId.head(sampleObjectId), sampleOut);
 
 
     }

@@ -30,3 +30,4 @@ public class AppProperties {
         return _getProperties();
     }
 }
+

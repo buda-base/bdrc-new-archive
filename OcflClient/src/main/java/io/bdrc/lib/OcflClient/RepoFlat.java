@@ -2,7 +2,7 @@ package io.bdrc.lib.OcflClient;
 
 import io.ocfl.api.model.ObjectVersionId;
 import io.ocfl.core.OcflRepositoryBuilder;
-import io.ocfl.core.extension.storage.layout.config.NTupleOmitPrefixStorageLayoutConfig;
+import io.ocfl.core.extension.storage.layout.config.FlatLayoutConfig;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,25 +15,23 @@ import static io.bdrc.lib.OcflClient.OcflPrimitives.*;
  * prototype ocfl client
  */
 
-public class RepoNTupleOmitPrefix {
-    private static final String O_PREFIX = "bdr:";
+public class RepoFlat {
+    private static final String layoutName = "FlatLayout";
+    private static final String sampleObjectId = "W1PD177852";
 
-    private static final String layoutName = "RepoNTupleOmitPrefix";
-    private static final String sampleObjectId = O_PREFIX + "W1PD177852";
+    // Just for thrills. Used BOTH to locate input and output
+    private static final String sampleObjectDiskName = sampleObjectId;
 
-    // This is the ONE case where the disk copy is not the object name
-    private static final String sampleObjectDiskName = "W1PD177852";
 
     public static void main(String[] args) throws IOException
     {
 
-        Path ocflHome = getOCFL_ROOT(layoutName);
+        Path ocflHome = rebuildPath( getOCFL_ROOT(layoutName));
         Path repoDir = rebuildPath(getOcflRepo(ocflHome));
         Path workDir = rebuildPath(getOcflWork(ocflHome));
 
-
         var repo = new OcflRepositoryBuilder()
-                .defaultLayoutConfig(new NTupleOmitPrefixStorageLayoutConfig().setDelimiter(O_PREFIX))
+                .defaultLayoutConfig(new FlatLayoutConfig())
                 .storage(storage -> storage.fileSystem(repoDir))
                 .workDir(workDir)
                 .build();
@@ -42,13 +40,9 @@ public class RepoNTupleOmitPrefix {
                 SampleWorkSource, sampleObjectDiskName));
 
 
-        // dump each object into a dir specific to its layout name
         Path sampleOut = Paths.get(OCFL_PROJECT_ROOT.toString(), "sample", SampleOutput,
                 layoutName, sampleObjectDiskName);
 
         downloadContent(repo, ObjectVersionId.head(sampleObjectId), sampleOut);
-
     }
-
-
 }
