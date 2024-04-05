@@ -12,7 +12,9 @@ public class Globals {
 
     public static Path getOcflRepo(Path home) {
         return home.resolve("ocfl-repo");
-    }    public static Path getOcflWork(Path home) {
+    }
+
+    public static Path getOcflWork(Path home) {
         return home.resolve("ocfl-work");
     }
 
