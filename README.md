@@ -44,8 +44,17 @@ in such a way as to generate versioning.
 │   └── ocfl-work
 ├── RepoNTupleOmitPrefix
 │   ├── ocfl-repo
-│   │   ├── W1P
-│   │   └── extensions
+│   ├── W1P
+│   │  └── D17
+│   │      └── 785
+│   │          └── W1PD177852
+│   │              └── v1
+│   │                  └── content
+│   │                      ├── I1KG18331
+│   │                      │   └── archive
+│   │                      ├── I1KG18332..I1KG18367
+│   │                      │   └── archive
+│   │  └── extensions
 │   └── ocfl-work
 ├── SampleFlatLayout
 │   ├── ocfl-repo
