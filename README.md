@@ -150,7 +150,7 @@ be managed separately. That is the function of higher order systems, suche as Fe
 
 Regardless of the path, (eg. `17d/085/e85/17d085385.....`) the object is W1PD177852.
 
-Note also that the that the OS presents are *not* the repository itself. In the example above, the `images` and `sources` directories 
+Note also that the tree that the OS presents  *is not* the repository itself. In the example above, the `images` and `sources` directories 
 do not appear. They are referenced only in the `inventory.json` file  in the repository root and in each version.
 Clients *always* need the API to extract content from the repository. You *cannot* simply copy, a portion of the archive
 to extract it.
